@@ -1,0 +1,50 @@
+Resolving artifact org.apache.maven.resolver:maven-resolver-impl:jar:1.6.2
+Downloading artifact org.apache.maven.resolver:maven-resolver-impl:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-impl/1.6.2/maven-resolver-impl-1.6.2.jar
+*
+Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-impl/1.6.2/maven-resolver-impl-1.6.2.jar (*)
+Downloaded artifact org.apache.maven.resolver:maven-resolver-impl:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Resolved artifact org.apache.maven.resolver:maven-resolver-impl:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+*
+Resolving artifact org.apache.maven.resolver:maven-resolver-api:jar:1.6.2
+Downloading artifact org.apache.maven.resolver:maven-resolver-api:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-api/1.6.2/maven-resolver-api-1.6.2.jar
+*             
+Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-api/1.6.2/maven-resolver-api-1.6.2.jar (*)
+Downloaded artifact org.apache.maven.resolver:maven-resolver-api:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Resolved artifact org.apache.maven.resolver:maven-resolver-api:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Resolving artifact org.apache.maven.resolver:maven-resolver-api:pom:1.6.2
+*
+Resolving artifact org.apache.maven.resolver:maven-resolver-spi:jar:1.6.2
+Downloading artifact org.apache.maven.resolver:maven-resolver-spi:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-spi/1.6.2/maven-resolver-spi-1.6.2.jar
+*           
+Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-spi/1.6.2/maven-resolver-spi-1.6.2.jar (*)
+Downloaded artifact org.apache.maven.resolver:maven-resolver-spi:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Resolved artifact org.apache.maven.resolver:maven-resolver-spi:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+*
+Resolving artifact org.apache.maven.resolver:maven-resolver-util:jar:1.6.2
+Downloading artifact org.apache.maven.resolver:maven-resolver-util:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/1.6.2/maven-resolver-util-1.6.2.jar
+*
+Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/resolver/maven-resolver-util/1.6.2/maven-resolver-util-1.6.2.jar (* at *)
+Downloaded artifact org.apache.maven.resolver:maven-resolver-util:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Resolved artifact org.apache.maven.resolver:maven-resolver-util:jar:1.6.2 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+*
+Resolving artifact org.apache.commons:commons-lang3:jar:3.8.1
+Downloading artifact org.apache.commons:commons-lang3:jar:3.8.1 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar
+*
+Downloaded: https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar (* at *)
+Downloaded artifact org.apache.commons:commons-lang3:jar:3.8.1 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Resolved artifact org.apache.commons:commons-lang3:jar:3.8.1 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+*
+Resolving artifact org.slf4j:slf4j-api:jar:1.7.30
+Downloading artifact org.slf4j:slf4j-api:jar:1.7.30 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Downloading: https://repo.maven.apache.org/maven2/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar
+*
+Downloaded: https://repo.maven.apache.org/maven2/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar (* at *)
+Downloaded artifact org.slf4j:slf4j-api:jar:1.7.30 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+Resolved artifact org.slf4j:slf4j-api:jar:1.7.30 from central (https://repo.maven.apache.org/maven2/, default, releases+snapshots)
+*
+Resolved artifact *
