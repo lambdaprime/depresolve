@@ -42,64 +42,64 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 
 public class MavenClasspathResolver {
 
-	private String scopeName;
-	private RepositorySystem system;
-	private RepositorySystemSession session;
-	private List<RemoteRepository> repos = Booter.newRepositories(system, session);
-	private Set<File> classpath = new HashSet<File>();
+    private String scopeName;
+    private RepositorySystem system;
+    private RepositorySystemSession session;
+    private List<RemoteRepository> repos = Booter.newRepositories(system, session);
+    private Set<File> classpath = new HashSet<File>();
 
-	public MavenClasspathResolver(RepositorySystem system, RepositorySystemSession session) {
-	    this.system = system;
-	    this.session = session;
+    public MavenClasspathResolver(RepositorySystem system, RepositorySystemSession session) {
+        this.system = system;
+        this.session = session;
     }
-	
-	public void resolve(String fullArtifactId, Scope scope) throws Exception {
-	    scopeName = scope.toString().toLowerCase();
-		var artifact = new DefaultArtifact(fullArtifactId);
-		classpath.add(resolvePath(artifact));
-		resolveDependencyTree(artifact);
-	}
-	
-	private void resolveDependencyTree(Artifact artifact) throws Exception {
-		var descriptorRequest = new ArtifactDescriptorRequest();
-		descriptorRequest.setArtifact(artifact);
-		descriptorRequest.setRepositories(repos);
 
-		var descriptorResult = system.readArtifactDescriptor(session, descriptorRequest);
-		for (var dependency : descriptorResult.getDependencies()) {
-		    if (!Objects.equals(scopeName, dependency.getScope())) {
-		        continue;
-			}
-		    Artifact depArtifact = dependency.getArtifact();
+    public void resolve(String fullArtifactId, Scope scope) throws Exception {
+        scopeName = scope.toString().toLowerCase();
+        var artifact = new DefaultArtifact(fullArtifactId);
+        classpath.add(resolvePath(artifact));
+        resolveDependencyTree(artifact);
+    }
+
+    private void resolveDependencyTree(Artifact artifact) throws Exception {
+        var descriptorRequest = new ArtifactDescriptorRequest();
+        descriptorRequest.setArtifact(artifact);
+        descriptorRequest.setRepositories(repos);
+
+        var descriptorResult = system.readArtifactDescriptor(session, descriptorRequest);
+        for (var dependency : descriptorResult.getDependencies()) {
+            if (!Objects.equals(scopeName, dependency.getScope())) {
+                continue;
+            }
+            Artifact depArtifact = dependency.getArtifact();
             var depFile = resolvePath(depArtifact);
-		    if (classpath.contains(depFile)) continue;
-			classpath.add(depFile);
-			resolveDependencyTree(depArtifact);
-		}
-	}
-	
-	public List<File> getAllResolvedFiles() {
-	    return classpath.stream()
+            if (classpath.contains(depFile)) continue;
+            classpath.add(depFile);
+            resolveDependencyTree(depArtifact);
+        }
+    }
+
+    public List<File> getAllResolvedFiles() {
+        return classpath.stream()
             .sorted()
             .collect(toList());
-	}
+    }
 
-	@Override
-	public String toString() {
-		return classpath.stream()
-				.map(File::toString)
-				.sorted()
-				.collect(Collectors.joining(":"));
-	}
-	
-	private File resolvePath(Artifact artifact) {
-		var artifactRequest = new ArtifactRequest();
-		artifactRequest.setArtifact(artifact);
-		artifactRequest.setRepositories(repos);
-		try {
-			return system.resolveArtifact(session, artifactRequest).getArtifact().getFile();
-		} catch (ArtifactResolutionException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    public String toString() {
+        return classpath.stream()
+            .map(File::toString)
+            .sorted()
+            .collect(Collectors.joining(System.getProperty("path.separator", ":")));
+    }
+
+    private File resolvePath(Artifact artifact) {
+        var artifactRequest = new ArtifactRequest();
+        artifactRequest.setArtifact(artifact);
+        artifactRequest.setRepositories(repos);
+        try {
+            return system.resolveArtifact(session, artifactRequest).getArtifact().getFile();
+        } catch (ArtifactResolutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
