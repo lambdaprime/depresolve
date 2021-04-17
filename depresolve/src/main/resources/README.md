@@ -12,7 +12,13 @@ REPO_FOLDER - Maven repository location
 
 OUTPUT_FOLDER - output folder where to place all artifacts
 
-ARTIFACT_NAME - full name of the artifact. Example: "org.apache.maven.resolver:maven-resolver-impl:1.6.2"
+ARTIFACT_NAME - full name of the artifact in the format:
+
+``` 
+<groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>
+```
+
+Example: "org.apache.maven.resolver:maven-resolver-impl:1.6.2"
 
 # Documentation
 
