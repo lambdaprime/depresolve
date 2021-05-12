@@ -3,14 +3,14 @@
 Usage
 
 ```bash
-depresolve [ -cp | -classpath ] [ --repo-home <REPO_FOLDER> ] [ --output <OUTPUT_FOLDER> ] [--scope <test|compile> ] <ARTIFACT_NAME> [ ... [--scope <test|compile> ] <ARTIFACT_NAME> ]
+depresolve [ -cp | -classpath ] [ --repo-home <REPO_FOLDER> ] [ --output|--output-links <OUTPUT_FOLDER> ] [--scope <test|compile> ] <ARTIFACT_NAME> [ ... [--scope <test|compile> ] <ARTIFACT_NAME> ]
 ```
 
 Where: 
 
 REPO_FOLDER - Maven repository location
 
-OUTPUT_FOLDER - output folder where to place all artifacts
+OUTPUT_FOLDER - output folder where to place all artifacts (or symbolic links to them)
 
 ARTIFACT_NAME - full name of the artifact in the format:
 
@@ -33,4 +33,3 @@ You can download **depresolve** from <https://github.com/lambdaprime/depresolve/
 Based on maven-resolver library https://github.com/apache/maven-resolver
 
 lambdaprime <intid@protonmail.com>
-

@@ -67,6 +67,11 @@ public class Main {
                 positionalArgs.remove();
                 resolver.withOutputDir(Paths.get(positionalArgs.remove()));
                 break;
+            case "--output-links" :
+                positionalArgs.remove();
+                resolver.withOutputDir(Paths.get(positionalArgs.remove()))
+                    .withUseLinks();
+                break;
             default:
                 resolver.addArtifactToResolve(new ArtifactInfo(positionalArgs.remove(), scope));
             }

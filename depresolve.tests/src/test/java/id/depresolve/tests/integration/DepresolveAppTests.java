@@ -184,6 +184,24 @@ public class DepresolveAppTests {
         assertFilesExist(outputDir, files);
     }
     
+    @Test
+    public void test_output_links() throws IOException {
+        var outputDir = Files.createTempDirectory("depresolce-output");
+        var repoHome = new Depresolve().findLocalRepositoryHome();
+        var files = List.of(
+            "commons-lang3-3.8.1.jar",
+            "maven-resolver-api-1.6.2.jar",
+            "maven-resolver-impl-1.6.2.jar",
+            "maven-resolver-spi-1.6.2.jar",
+            "maven-resolver-util-1.6.2.jar",
+            "slf4j-api-1.7.30.jar");
+        removeFiles(repoHome, files);
+        var args = String.format("--output-links %s org.apache.maven.resolver:maven-resolver-impl:1.6.2", outputDir);
+        runOk(args);
+        assertFilesExist(outputDir, files);
+        assertFilesAreLinks(outputDir, files);
+    }
+
     private String runFail(String fmt, Object...args) {
         return run(1, fmt, args);
     }
@@ -210,6 +228,10 @@ public class DepresolveAppTests {
         return Paths.get(filePath.toString(), subFilePath).toFile().exists();
     }
     
+    private boolean linkExist(Path filePath, String... subFilePath) {
+        return Files.isSymbolicLink(Paths.get(filePath.toString(), subFilePath));
+    }
+
     private void removeFiles(Path parentDir, List<String> files) {
         for (var file: files)
             Paths.get(parentDir.toString(), file).toFile().delete();
@@ -218,5 +240,10 @@ public class DepresolveAppTests {
     private void assertFilesExist(Path parentDir, List<String> files) {
         for (var file: files)
             Assertions.assertEquals(true, fileExist(parentDir, file));
+    }
+
+    private void assertFilesAreLinks(Path parentDir, List<String> files) {
+        for (var file: files)
+            Assertions.assertEquals(true, linkExist(parentDir, file));
     }
 }

@@ -42,6 +42,7 @@ public class Depresolve {
     private boolean generateClasspath;
     private Optional<Path> repositoryHome = Optional.empty();
     private Optional<Path> outputDir = Optional.empty();
+    private boolean useLinks = false;
     private List<ArtifactInfo> artifacts = new ArrayList<>();
 
     public Depresolve withGenerateClasspath() {
@@ -53,7 +54,12 @@ public class Depresolve {
         outputDir = Optional.of(dir);
         return this;
     }
-    
+
+    public Depresolve withUseLinks() {
+        useLinks = true;
+        return this;
+    }
+
     public Depresolve addArtifactToResolve(ArtifactInfo artifact) {
         artifacts.add(artifact);
         return this;
@@ -98,7 +104,14 @@ public class Depresolve {
                 Files.createDirectory(dst);
             }
             resolver.getAllResolvedFiles().forEach(file -> {
-                Unchecked.run(() -> Files.copy(file.toPath(), dst.resolve(file.getName())));
+                Unchecked.run(() -> {
+                    var src = file.toPath();
+                    var target = dst.resolve(file.getName());
+                    if (useLinks)
+                        Files.createSymbolicLink(target, src);
+                    else
+                        Files.copy(src, target);
+                });
             });
         }
     }
