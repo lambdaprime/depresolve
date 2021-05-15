@@ -1,4 +1,7 @@
-**depresolve** - command line tool which helps to manage Java dependencies (from Maven repository).
+**depresolve** - command line tool which helps to manage Java dependencies (from Maven repository). It allows:
+
+- downloading all Maven dependencies to a directory
+- building a classpath string for Maven artifact(s) with all its dependencies (useful in Java scripting)
 
 Usage
 
