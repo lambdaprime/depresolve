@@ -19,23 +19,9 @@
  * Authors:
  * - lambdaprime <intid@protonmail.com>
  */
-package id.depresolve.utils;
+package id.depresolve;
 
-public class ArtifactInfo {
-
-    private String name;
-    private Scope scope;
-    
-    public ArtifactInfo(String name, Scope scope) {
-        this.name = name;
-        this.scope = scope;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public Scope getScope() {
-        return scope;
-    }
+public enum Scope {
+	TEST,
+	COMPILE
 }

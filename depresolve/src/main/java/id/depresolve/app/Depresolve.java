@@ -21,6 +21,7 @@
  */
 package id.depresolve.app;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +32,7 @@ import java.util.Optional;
 
 import org.apache.maven.resolver.examples.util.Booter;
 
-import id.depresolve.utils.ArtifactInfo;
+import id.depresolve.ArtifactInfo;
 import id.depresolve.utils.MavenClasspathResolver;
 import id.depresolve.utils.RepositoryUtills;
 import id.xfunction.function.Unchecked;
@@ -44,12 +45,19 @@ public class Depresolve {
     private Optional<Path> outputDir = Optional.empty();
     private boolean useLinks = false;
     private List<ArtifactInfo> artifacts = new ArrayList<>();
+    private Optional<List<File>> classpathOutput = Optional.empty();
 
     public Depresolve withGenerateClasspath() {
         generateClasspath = true;
         return this;
     }
     
+    public Depresolve withGenerateClasspath(List<File> output) {
+        generateClasspath = true;
+        classpathOutput = Optional.of(output);
+        return this;
+    }
+
     public Depresolve withOutputDir(Path dir) {
         outputDir = Optional.of(dir);
         return this;
@@ -96,7 +104,11 @@ public class Depresolve {
             resolver.resolve(artifact.getName(), artifact.getScope());
         }
         if (generateClasspath) {
-            System.out.println(resolver);
+            if (classpathOutput.isEmpty()) {
+                System.out.println(resolver);
+            } else {
+                classpathOutput.get().addAll(resolver.getAllResolvedFiles());
+            }
         }
         if (outputDir.isPresent()) {
             var dst = outputDir.get();

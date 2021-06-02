@@ -26,8 +26,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import id.depresolve.utils.ArtifactInfo;
-import id.depresolve.utils.Scope;
+import id.depresolve.ArtifactInfo;
+import id.depresolve.Scope;
 import id.xfunction.ArgumentParsingException;
 import id.xfunction.SmartArgs;
 import id.xfunction.XUtils;

@@ -40,6 +40,8 @@ import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 
+import id.depresolve.Scope;
+
 public class MavenClasspathResolver {
 
     private String scopeName;

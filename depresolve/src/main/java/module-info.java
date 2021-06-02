@@ -30,6 +30,7 @@ module depresolve {
     requires org.apache.maven.resolver.transport.http;
     requires maven.resolver.provider;  
 
+    exports id.depresolve;
     exports id.depresolve.app;
 
 }
