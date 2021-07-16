@@ -73,10 +73,15 @@ public class MavenClasspathResolver {
                 continue;
             }
             Artifact depArtifact = dependency.getArtifact();
-            var depFile = resolvePath(depArtifact);
-            if (classpath.contains(depFile)) continue;
-            classpath.add(depFile);
-            resolveDependencyTree(depArtifact);
+            try {
+                var depFile = resolvePath(depArtifact);
+                if (classpath.contains(depFile)) continue;
+                classpath.add(depFile);
+                resolveDependencyTree(depArtifact);
+            } catch (ArtifactResolutionException e) {
+                // keep going trying to resolve what is left
+                e.printStackTrace();
+            }
         }
     }
 
@@ -94,14 +99,10 @@ public class MavenClasspathResolver {
             .collect(Collectors.joining(System.getProperty("path.separator", ":")));
     }
 
-    private File resolvePath(Artifact artifact) {
+    private File resolvePath(Artifact artifact) throws ArtifactResolutionException {
         var artifactRequest = new ArtifactRequest();
         artifactRequest.setArtifact(artifact);
         artifactRequest.setRepositories(repos);
-        try {
-            return system.resolveArtifact(session, artifactRequest).getArtifact().getFile();
-        } catch (ArtifactResolutionException e) {
-            throw new RuntimeException(e);
-        }
+        return system.resolveArtifact(session, artifactRequest).getArtifact().getFile();
     }
 }

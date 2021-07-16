@@ -23,6 +23,7 @@ package id.depresolve.tests.integration;
 
 import static id.xfunction.XUtils.readResource;
 import static java.util.stream.Collectors.joining;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.Test;
 
 import id.depresolve.app.Depresolve;
 import id.xfunction.XExec;
+import id.xfunction.XUtils;
 import id.xfunction.text.WildcardMatcher;
 
 public class DepresolveAppTests {
@@ -200,6 +202,24 @@ public class DepresolveAppTests {
         runOk(args);
         assertFilesExist(outputDir, files);
         assertFilesAreLinks(outputDir, files);
+    }
+
+    @Test
+    public void test_ignore_not_found() throws IOException {
+        var args = String.format("-cp org.apache.maven.resolver:maven-resolver-impl:1.6.2");
+        runOk(args);
+        var files = List.of(
+            "org/apache/maven/resolver/maven-resolver-api/1.6.2/maven-resolver-api-1.6.2.jar",
+            "org/apache/maven/resolver/maven-resolver-impl/1.6.2/maven-resolver-impl-1.6.2.jar");
+        var repoHome = new Depresolve().findLocalRepositoryHome();
+        var expected = files.stream()
+                .map(f -> repoHome.resolve(f).toString())
+                .collect(joining(":"));
+        var pomFile = repoHome.resolve("org/apache/maven/resolver/maven-resolver-impl/1.6.2/maven-resolver-impl-1.6.2.pom");
+        Files.writeString(pomFile, XUtils.readResource("maven-resolver-impl-1.6.2.pom"));
+        var actual = runOk(args);
+        XUtils.deleteDir(pomFile.getParent());
+        assertEquals(true, actual.startsWith(expected));
     }
 
     private String runFail(String fmt, Object...args) {
