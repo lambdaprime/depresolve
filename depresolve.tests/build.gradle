@@ -1,33 +1,21 @@
-/**
- * gradle clean build
- */
 plugins {
     id 'java'
 }
 
 apply plugin : 'eclipse'
 
-repositories {
-    mavenCentral()
-    mavenLocal()
-}
-
 dependencies {
     testImplementation project(':depresolve')
     testImplementation('org.junit.jupiter:junit-jupiter:5.7.1')
     testImplementation('org.junit.jupiter:junit-jupiter-params:5.7.1')
-    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.7.1')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.1')
 }
 
 sourceCompatibility = '11'
 targetCompatibility = '11'
 
-String testDir = "$buildDir/${projectName}"
-String testSrcDir = "$projectDir/src/test"
-
 // Gradle has no UnZip task so we reuse Copy for that
-task myTestCopy(type: Copy) {
-    mkdir file(testDir)
+task myTest(type: Copy) {
     from zipTree("${project.rootDir}/${projectName}/release/${releaseFileName}")
     into "$buildDir"
 }
@@ -40,4 +28,6 @@ test {
     useJUnitPlatform()
 }
 
-test.dependsOn myTestCopy
+myTest.dependsOn project(':depresolve').createRelease
+compileTestJava.dependsOn myTest
+jar.dependsOn myTest

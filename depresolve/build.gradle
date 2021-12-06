@@ -1,36 +1,54 @@
-/**
- * gradle clean build
- */
 plugins {
     id 'java'
 }
 
-repositories {
-    mavenCentral()
+apply plugin : 'eclipse'
+
+// Excluding transient dependencies which are not used
+configurations {
+    implementation {
+        exclude(group: 'junit', module: 'junit')
+    }
+    apiElements {
+        exclude(group: 'junit', module: 'junit')
+    }
 }
  
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'org.apache.maven:maven-model-builder:3.8.4'
+    implementation 'org.apache.maven:maven-resolver-provider:3.8.4'
+    implementation 'org.apache.maven.resolver:maven-resolver:1.7.2'
+    implementation 'org.apache.maven.resolver:maven-resolver-impl:1.7.2'
+    implementation 'org.apache.maven.resolver:maven-resolver-util:1.7.2'
+    implementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.7.2'
+    implementation 'org.apache.maven.resolver:maven-resolver-transport-file:1.7.2'
+    implementation 'org.apache.maven.resolver:maven-resolver-transport-http:1.7.2'
+    implementation 'org.slf4j:slf4j-simple:1.7.32'
+    implementation 'io.github.lambdaprime:id.xfunction:14.0'
+
+    // transitively export following dependency to tests project
+    apiElements 'org.apache.maven:maven-resolver-provider:3.8.4'
+    apiElements 'org.apache.maven.resolver:maven-resolver:1.7.2'
+    apiElements 'org.apache.maven.resolver:maven-resolver-impl:1.7.2'
+    apiElements 'org.apache.maven.resolver:maven-resolver-util:1.7.2'
+    apiElements 'org.apache.maven.resolver:maven-resolver-connector-basic:1.7.2'
+    apiElements 'org.apache.maven.resolver:maven-resolver-transport-file:1.7.2'
+    apiElements 'org.apache.maven.resolver:maven-resolver-transport-http:1.7.2'
+    apiElements 'org.slf4j:slf4j-simple:1.7.32'
+    apiElements 'io.github.lambdaprime:id.xfunction:14.0'
 }
 
 sourceCompatibility = '11'
 targetCompatibility = '11'
 
-jar { 
+jar {
     manifest { 
         attributes 'Implementation-Version': "${rootProject.version}",
-                   'Main-Class': 'id.depresolve.app.Main', 
-                   'Class-Path': configurations.compile.collect { it.getName() }.join(' ')
+                   'Main-Class': 'id.depresolve.app.Main'
     }
 }
 
-java {
-    modularity.inferModulePath = true
-}
-
 def packageDir = "$buildDir/package/${projectName}"
-
-ext.artifacts = fileTree(include: ['*'], dir: "$packageDir/libs")
 
 task createRelease(type: Zip) {
     archiveFileName = "$releaseFileName"
@@ -39,7 +57,7 @@ task createRelease(type: Zip) {
 }
 
 task copyLibs(type: Copy) {
-    from "$projectDir/libs"
+    from configurations.runtimeClasspath
     from jar.archiveFile
     into "${packageDir}/libs"
 }

@@ -29,10 +29,12 @@ http://portal2.atwebpages.com/depresolve/
 
 # Download
 
-You can download **depresolve** from <https://github.com/lambdaprime/depresolve/releases>
+[Release versions](https://github.com/lambdaprime/depresolve/releases)
 
 # Details
 
-Based on maven-resolver library https://github.com/apache/maven-resolver
+Based on [maven-resolver](https://github.com/apache/maven-resolver) library
+
+# Contributors
 
 lambdaprime <intid@protonmail.com>
