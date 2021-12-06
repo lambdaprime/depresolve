@@ -207,6 +207,25 @@ public class DepresolveAppTests {
     }
 
     @Test
+    public void test_output_links_exists() throws IOException {
+        var outputDir = Files.createTempDirectory("depresolce-output");
+        var repoHome = new Depresolve().findLocalRepositoryHome();
+        var files = List.of(
+            "commons-lang3-3.8.1.jar",
+            "maven-resolver-api-1.6.2.jar",
+            "maven-resolver-impl-1.6.2.jar",
+            "maven-resolver-spi-1.6.2.jar",
+            "maven-resolver-util-1.6.2.jar",
+            "slf4j-api-1.7.30.jar");
+        removeFiles(repoHome, files);
+        var args = String.format("--output-links %s org.apache.maven.resolver:maven-resolver-impl:1.6.2", outputDir);
+        runOk(args);
+        runOk(args);
+        assertFilesExist(outputDir, files);
+        assertFilesAreLinks(outputDir, files);
+    }
+    
+    @Test
     public void test_ignore_not_found() throws IOException {
         var args = String.format("-cp org.apache.maven.resolver:maven-resolver-impl:1.6.2");
         runOk(args);

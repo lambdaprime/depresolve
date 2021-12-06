@@ -23,6 +23,7 @@ package id.depresolve.app;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,7 +36,6 @@ import org.apache.maven.resolver.examples.util.Booter;
 import id.depresolve.ArtifactInfo;
 import id.depresolve.utils.MavenClasspathResolver;
 import id.depresolve.utils.RepositoryUtills;
-import id.xfunction.function.Unchecked;
 import id.xfunction.io.DevNullOutputStream;
 
 public class Depresolve {
@@ -116,14 +116,18 @@ public class Depresolve {
                 Files.createDirectory(dst);
             }
             resolver.getAllResolvedFiles().forEach(file -> {
-                Unchecked.run(() -> {
+                try {
                     var src = file.toPath();
                     var target = dst.resolve(file.getName());
                     if (useLinks)
                         Files.createSymbolicLink(target, src);
                     else
                         Files.copy(src, target);
-                });
+                } catch (FileAlreadyExistsException e) {
+                    System.out.format("File already exist %s, skipping...\n", e.getFile());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
         }
     }
