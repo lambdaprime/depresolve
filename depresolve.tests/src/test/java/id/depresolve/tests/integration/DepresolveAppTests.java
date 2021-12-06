@@ -21,7 +21,6 @@
  */
 package id.depresolve.tests.integration;
 
-import static id.xfunction.XUtils.readResource;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -37,11 +36,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import id.depresolve.app.Depresolve;
-import id.xfunction.XExec;
-import id.xfunction.XUtils;
+import id.xfunction.lang.XExec;
+import id.xfunction.ResourceUtils;
 import id.xfunction.text.WildcardMatcher;
+import id.xfunction.nio.file.XFiles;
 
 public class DepresolveAppTests {
+
+    private static final ResourceUtils resourceUtil = new ResourceUtils();
 
     private static final String APP_PATH = Paths.get("")
             .toAbsolutePath()
@@ -71,7 +73,7 @@ public class DepresolveAppTests {
         removeFiles(repoHome, files);
         var args = String.format("org.apache.maven.resolver:maven-resolver-impl:1.6.2");
         var out = runOk(args);
-        Assertions.assertEquals(true, new WildcardMatcher(readResource("test_download_to_custom_repo")).matches(out));
+        Assertions.assertEquals(true, new WildcardMatcher(resourceUtil.readResource("test_download_to_custom_repo")).matches(out));
         assertFilesExist(repoHome, files);
     }
   
@@ -89,7 +91,7 @@ public class DepresolveAppTests {
         var args = String.format("--repo-home %s org.apache.maven.resolver:maven-resolver-impl:1.6.2",
             repoHome.toString());
         var out = runOk(args);
-        Assertions.assertEquals(true, new WildcardMatcher(readResource("test_download_to_custom_repo")).matches(out));
+        Assertions.assertEquals(true, new WildcardMatcher(resourceUtil.readResource("test_download_to_custom_repo")).matches(out));
         assertFilesExist(repoHome, files);
     }
     
@@ -166,7 +168,7 @@ public class DepresolveAppTests {
     @Test
     public void test_no_args() throws Exception {
         var out = runFail("");
-        Assertions.assertEquals(readResource("README.md") + "\n\n", out);
+        Assertions.assertEquals(resourceUtil.readResource("README.md") + "\n\n", out);
     }
     
     @Test
@@ -216,9 +218,9 @@ public class DepresolveAppTests {
                 .map(f -> repoHome.resolve(f).toString())
                 .collect(joining(":"));
         var pomFile = repoHome.resolve("org/apache/maven/resolver/maven-resolver-impl/1.6.2/maven-resolver-impl-1.6.2.pom");
-        Files.writeString(pomFile, XUtils.readResource("maven-resolver-impl-1.6.2.pom"));
+        Files.writeString(pomFile, resourceUtil.readResource("maven-resolver-impl-1.6.2.pom"));
         var actual = runOk(args);
-        XUtils.deleteDir(pomFile.getParent());
+        XFiles.deleteRecursively(pomFile.getParent());
         assertEquals(true, actual.startsWith(expected));
     }
 

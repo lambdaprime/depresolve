@@ -28,14 +28,14 @@ import java.util.function.Consumer;
 
 import id.depresolve.ArtifactInfo;
 import id.depresolve.Scope;
-import id.xfunction.ArgumentParsingException;
-import id.xfunction.SmartArgs;
-import id.xfunction.XUtils;
+import id.xfunction.cli.ArgumentParsingException;
+import id.xfunction.cli.SmartArgs;
+import id.xfunction.ResourceUtils;
 
 public class Main {
 
     private static void usage() {
-        XUtils.readResourceAsStream("README.md")
+        new ResourceUtils().readResourceAsStream("README.md")
             .forEach(System.out::println);
     }
 
