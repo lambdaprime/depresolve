@@ -23,4 +23,4 @@ if [[ "$OS" =~ Windows ]]; then
 fi
 
 # We cannot use -jar option because it ignores -cp and $CLASSPATH
-java ${JAVA_ARGS} -Xnoclassgc -noverify -cp "${APP_PATH}/libs/*" id.depresolve.app.Main "$@"
+java ${JAVA_ARGS} -cp "${APP_PATH}/libs/*" id.depresolve.app.Main "$@"

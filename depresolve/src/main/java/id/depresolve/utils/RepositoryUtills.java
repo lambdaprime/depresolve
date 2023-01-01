@@ -15,15 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Authors:
- * - lambdaprime <intid@protonmail.com>
- */
 package id.depresolve.utils;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
-
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.apache.maven.resolver.examples.util.ConsoleRepositoryListener;
 import org.apache.maven.resolver.examples.util.ConsoleTransferListener;
@@ -32,11 +27,13 @@ import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.repository.LocalRepository;
 
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class RepositoryUtills {
 
-    public static RepositorySystemSession newRepositorySystemSession(RepositorySystem system,
-            Path repositoryHome, PrintStream out)
-    {
+    public static RepositorySystemSession newRepositorySystemSession(
+            RepositorySystem system, Path repositoryHome, PrintStream out) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
 
         LocalRepository localRepo = new LocalRepository(repositoryHome.toString());
@@ -47,5 +44,4 @@ public class RepositoryUtills {
 
         return session;
     }
-
 }

@@ -15,26 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Authors:
- * - lambdaprime <intid@protonmail.com>
- */
 package id.depresolve;
 
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class ArtifactInfo {
 
     private String name;
     private Scope scope;
-    
+
     public ArtifactInfo(String name, Scope scope) {
         this.name = name;
         this.scope = scope;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public Scope getScope() {
         return scope;
     }

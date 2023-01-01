@@ -15,21 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Authors:
- * - lambdaprime <intid@protonmail.com>
- */
 package id.depresolve.utils;
 
 import static java.util.stream.Collectors.toList;
 
+import id.depresolve.Scope;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.maven.resolver.examples.util.Booter;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -40,8 +36,9 @@ import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
 import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 
-import id.depresolve.Scope;
-
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class MavenClasspathResolver {
 
     private String scopeName;
@@ -86,17 +83,15 @@ public class MavenClasspathResolver {
     }
 
     public List<File> getAllResolvedFiles() {
-        return classpath.stream()
-            .sorted()
-            .collect(toList());
+        return classpath.stream().sorted().collect(toList());
     }
 
     @Override
     public String toString() {
         return classpath.stream()
-            .map(File::toString)
-            .sorted()
-            .collect(Collectors.joining(System.getProperty("path.separator", ":")));
+                .map(File::toString)
+                .sorted()
+                .collect(Collectors.joining(System.getProperty("path.separator", ":")));
     }
 
     private File resolvePath(Artifact artifact) throws ArtifactResolutionException {

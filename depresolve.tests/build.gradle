@@ -1,33 +1,36 @@
 plugins {
-    id 'java'
+  id 'com.diffplug.spotless'
+  id 'jacoco'
 }
 
 apply plugin : 'eclipse'
 
 dependencies {
-    testImplementation project(':depresolve')
-    testImplementation('org.junit.jupiter:junit-jupiter:5.7.1')
-    testImplementation('org.junit.jupiter:junit-jupiter-params:5.7.1')
-    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.7.1')
-}
+  testImplementation project(':depresolve')
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+  def junitVersion = "5.8.1"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+}
 
 // Gradle has no UnZip task so we reuse Copy for that
 task myTest(type: Copy) {
-    from zipTree("${project.rootDir}/${projectName}/release/${releaseFileName}")
-    into "$buildDir"
-}
-
-java {
-    modularity.inferModulePath = true
+  from zipTree("${project.rootDir}/${projectName}/release/${releaseFileName}")
+  into "$buildDir"
 }
 
 test {
-    useJUnitPlatform()
+  useJUnitPlatform()
+
+  testLogging {
+    events "started", "failed"
+  }
 }
 
 myTest.dependsOn project(':depresolve').createRelease
 compileTestJava.dependsOn myTest
 jar.dependsOn myTest
+
+// run spotless and format code before the build
+testClasses.dependsOn spotlessApply

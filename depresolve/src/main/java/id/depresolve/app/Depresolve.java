@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Authors:
- * - lambdaprime <intid@protonmail.com>
- */
 package id.depresolve.app;
 
+import id.depresolve.ArtifactInfo;
+import id.depresolve.utils.MavenClasspathResolver;
+import id.depresolve.utils.RepositoryUtills;
+import id.xfunction.io.DevNullOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -30,14 +30,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.apache.maven.resolver.examples.util.Booter;
 
-import id.depresolve.ArtifactInfo;
-import id.depresolve.utils.MavenClasspathResolver;
-import id.depresolve.utils.RepositoryUtills;
-import id.xfunction.io.DevNullOutputStream;
-
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public class Depresolve {
 
     private boolean generateClasspath;
@@ -51,7 +48,7 @@ public class Depresolve {
         generateClasspath = true;
         return this;
     }
-    
+
     public Depresolve withGenerateClasspath(List<File> output) {
         generateClasspath = true;
         classpathOutput = Optional.of(output);
@@ -72,7 +69,7 @@ public class Depresolve {
         artifacts.add(artifact);
         return this;
     }
-    
+
     public Depresolve withRepositoryHome(Path dir) {
         repositoryHome = Optional.of(dir);
         return this;
@@ -81,7 +78,7 @@ public class Depresolve {
     public List<ArtifactInfo> getArtifacts() {
         return artifacts;
     }
-    
+
     // visible for testing
     public Path findLocalRepositoryHome() {
         var userHome = System.getProperty("user.home");
@@ -89,7 +86,7 @@ public class Depresolve {
             throw new RuntimeException("Cannot find Maven local repository default location");
         return Paths.get(userHome, ".m2", "repository");
     }
-    
+
     public void run() throws Exception {
         var output = System.out;
         if (generateClasspath) {
@@ -100,7 +97,7 @@ public class Depresolve {
         var session = RepositoryUtills.newRepositorySystemSession(system, repoHome, output);
 
         var resolver = new MavenClasspathResolver(system, session);
-        for (var artifact: artifacts) {
+        for (var artifact : artifacts) {
             resolver.resolve(artifact.getName(), artifact.getScope());
         }
         if (generateClasspath) {
@@ -115,21 +112,21 @@ public class Depresolve {
             if (Files.notExists(dst)) {
                 Files.createDirectory(dst);
             }
-            resolver.getAllResolvedFiles().forEach(file -> {
-                try {
-                    var src = file.toPath();
-                    var target = dst.resolve(file.getName());
-                    if (useLinks)
-                        Files.createSymbolicLink(target, src);
-                    else
-                        Files.copy(src, target);
-                } catch (FileAlreadyExistsException e) {
-                    System.out.format("File already exist %s, skipping...\n", e.getFile());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            resolver.getAllResolvedFiles()
+                    .forEach(
+                            file -> {
+                                try {
+                                    var src = file.toPath();
+                                    var target = dst.resolve(file.getName());
+                                    if (useLinks) Files.createSymbolicLink(target, src);
+                                    else Files.copy(src, target);
+                                } catch (FileAlreadyExistsException e) {
+                                    System.out.format(
+                                            "File already exist %s, skipping...\n", e.getFile());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
         }
     }
-
 }

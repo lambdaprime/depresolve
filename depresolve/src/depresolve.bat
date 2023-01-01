@@ -1,2 +1,2 @@
 @echo off
-java -Xnoclassgc -Xshare:off -noverify -cp "%~dp0\libs\*" id.depresolve.app.Main %*
+java -Xshare:off -cp "%~dp0\libs\*" id.depresolve.app.Main %*

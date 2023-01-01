@@ -15,13 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Authors:
- * - lambdaprime <intid@protonmail.com>
- */
 package id.depresolve;
 
+/**
+ * @author lambdaprime intid@protonmail.com
+ */
 public enum Scope {
-	TEST,
-	COMPILE
+    TEST,
+    COMPILE
 }

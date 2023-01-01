@@ -1,86 +1,186 @@
+// include xfunction for updateVersion
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath "io.github.lambdaprime:id.xfunction:14.0"
+  }
+}
+
 plugins {
-    id 'java'
+  id 'com.diffplug.spotless'
 }
 
 apply plugin : 'eclipse'
 
 // Excluding transient dependencies which are not used
 configurations {
-    implementation {
-        exclude(group: 'junit', module: 'junit')
-    }
-    apiElements {
-        exclude(group: 'junit', module: 'junit')
-    }
+  implementation {
+    exclude(group: 'junit', module: 'junit')
+  }
+  apiElements {
+    exclude(group: 'junit', module: 'junit')
+  }
 }
- 
+
 dependencies {
-    implementation 'org.apache.maven:maven-model-builder:3.8.4'
-    implementation 'org.apache.maven:maven-resolver-provider:3.8.4'
-    implementation 'org.apache.maven.resolver:maven-resolver:1.7.2'
-    implementation 'org.apache.maven.resolver:maven-resolver-impl:1.7.2'
-    implementation 'org.apache.maven.resolver:maven-resolver-util:1.7.2'
-    implementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.7.2'
-    implementation 'org.apache.maven.resolver:maven-resolver-transport-file:1.7.2'
-    implementation 'org.apache.maven.resolver:maven-resolver-transport-http:1.7.2'
-    implementation 'org.slf4j:slf4j-simple:1.7.32'
-    implementation 'io.github.lambdaprime:id.xfunction:14.0'
-
-    // transitively export following dependency to tests project
-    apiElements 'org.apache.maven:maven-resolver-provider:3.8.4'
-    apiElements 'org.apache.maven.resolver:maven-resolver:1.7.2'
-    apiElements 'org.apache.maven.resolver:maven-resolver-impl:1.7.2'
-    apiElements 'org.apache.maven.resolver:maven-resolver-util:1.7.2'
-    apiElements 'org.apache.maven.resolver:maven-resolver-connector-basic:1.7.2'
-    apiElements 'org.apache.maven.resolver:maven-resolver-transport-file:1.7.2'
-    apiElements 'org.apache.maven.resolver:maven-resolver-transport-http:1.7.2'
-    apiElements 'org.slf4j:slf4j-simple:1.7.32'
-    apiElements 'io.github.lambdaprime:id.xfunction:14.0'
+  addDependencies(this, ["implementation", "apiElements"], "19.0", [
+    "io.github.lambdaprime:id.xfunction"
+  ]);
+  addDependencies(this, ["implementation", "apiElements"], "1.7.2", [
+    'org.apache.maven.resolver:maven-resolver',
+    'org.apache.maven.resolver:maven-resolver-impl',
+    'org.apache.maven.resolver:maven-resolver-util',
+    'org.apache.maven.resolver:maven-resolver-connector-basic',
+    'org.apache.maven.resolver:maven-resolver-transport-file',
+    'org.apache.maven.resolver:maven-resolver-transport-http'
+  ]);
+  addDependencies(this, ["implementation", "apiElements"], "3.8.4", [
+    'org.apache.maven:maven-model-builder',
+    'org.apache.maven:maven-resolver-provider'
+  ]);
+  addDependencies(this, ["implementation", "apiElements"], "1.7.32", [
+    'org.slf4j:slf4j-simple'
+  ]);
 }
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+configurations {
+  customConfig.extendsFrom implementation
+}
 
 jar {
-    manifest { 
-        attributes 'Implementation-Version': "${rootProject.version}",
-                   'Main-Class': 'id.depresolve.app.Main'
-    }
+  manifest { 
+    attributes 'Implementation-Version': "${rootProject.version}",
+           'Main-Class': 'id.depresolve.app.Main'
+  }
 }
 
 def packageDir = "$buildDir/package/${projectName}"
 
 task createRelease(type: Zip) {
-    archiveFileName = "$releaseFileName"
-    destinationDirectory = file("$projectDir/release")
-    from file("$packageDir/..")
+  archiveFileName = "$releaseFileName"
+  destinationDirectory = file("$projectDir/release")
+  from file("$packageDir/..")
 }
 
 task copyLibs(type: Copy) {
-    from configurations.runtimeClasspath
-    from jar.archiveFile
-    into "${packageDir}/libs"
+  from configurations.runtimeClasspath
+  from jar.archiveFile
+  into "${packageDir}/libs"
 }
 
 task copyReadme(type: Copy) {
-    from("${project.rootDir}/README.md")
-    into("$projectDir/src/main/resources")
+  from("../README.md")
+  into("$buildDir/resources/main")
+  rename ("README.md", "README-${projectName}.md")
 }
 
+// overwrite template README which comes from resources folder
+jar.dependsOn copyReadme
+
 task createPackage(type: Copy, dependsOn: copyLibs) {
-    from "${project.rootDir}/README.md"
-    from "${project.rootDir}/LICENSE-2.0.txt"
-    from file("$projectDir/src/depresolve")
-    from file("$projectDir/src/depresolve.bat")
-    into packageDir
+  from "${project.rootDir}/README.md"
+  from "${project.rootDir}/LICENSE-2.0.txt"
+  from file("$projectDir/src/depresolve")
+  from file("$projectDir/src/depresolve.bat")
+  into packageDir
 }
 
 task cleanRelease(type: Delete) {
-    delete "$packageDir"
-    delete "$projectDir/release"
+  delete "$packageDir"
+  delete "$projectDir/release"
 }
 
-compileJava.dependsOn copyReadme
 createRelease.dependsOn createPackage
 assemble.dependsOn createRelease
 clean.dependsOn cleanRelease
+
+// run spotless and format code before the build
+classes.dependsOn spotlessApply
+
+if (project.hasProperty('publish')) {
+
+  // update version only during publishing
+  task updateVersion() {
+    if (version.contains("SNAPSHOT")) return;
+    println "Updating version to " + version
+    new id.xfunction.text.Substitutor()
+      .withRegexpSupport()
+      .substitute(java.nio.file.Paths.get("${project.rootDir}/README.md"), Map.of(
+        "io.github.lambdaprime:depresolve:[0-9.]+", "io.github.lambdaprime:depresolve:" + version
+      ));
+  }
+  createRelease.dependsOn updateVersion
+
+  // Initially it was taken from https://central.sonatype.org/publish/publish-gradle/
+  // but since Gradle removed this plugin https://docs.gradle.org/7.0/userguide/upgrading_version_6.html#removal_of_the_legacy_maven_plugin
+  // it was rewritten for new one
+
+  task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from "README-javadoc.txt"
+  }
+
+  task sourcesJar(type: Jar) {
+    archiveClassifier = 'sources'
+    from "README-sources.txt"
+  }
+
+  java {
+    withJavadocJar()
+    withSourcesJar()
+  }
+
+  apply plugin: 'maven-publish'
+
+  publishing {
+    publications {
+      mavenJava(MavenPublication) {
+        artifactId = 'depresolve'
+        groupId = 'io.github.lambdaprime'
+        from components.java
+        pom {
+          name = 'depresolve'
+          description = 'Manage Java dependencies from Maven repository'
+          url = 'https://github.com/lambdaprime/depresolve'
+
+          licenses {
+            license {
+              name = 'The Apache License, Version 2.0'
+              url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            }
+          }
+
+          developers {
+            developer {
+              id = 'lambdaprime'
+              email = 'intid@protonmail.com'
+            }
+          }
+
+          scm {
+            url = 'https://github.com/lambdaprime/depresolve'
+          }
+        }
+      }
+    }
+    repositories {
+      maven {
+        credentials {
+          username ossrhUsername
+          password ossrhPassword
+        }
+        url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+      }
+    }    
+  }
+
+  if (project.hasProperty('signing.secretKeyRingFile')) {
+    apply plugin: 'signing'
+
+    signing {
+      sign publishing.publications.mavenJava
+    }
+  }
+}

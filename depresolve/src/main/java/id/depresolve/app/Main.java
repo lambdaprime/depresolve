@@ -15,73 +15,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Authors:
- * - lambdaprime <intid@protonmail.com>
- */
 package id.depresolve.app;
 
+import id.depresolve.ArtifactInfo;
+import id.depresolve.Scope;
+import id.xfunction.ResourceUtils;
+import id.xfunction.cli.ArgumentParsingException;
+import id.xfunction.cli.SmartArgs;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import id.depresolve.ArtifactInfo;
-import id.depresolve.Scope;
-import id.xfunction.cli.ArgumentParsingException;
-import id.xfunction.cli.SmartArgs;
-import id.xfunction.ResourceUtils;
-
+/**
+ * Implements access to <b>depresolve</b> functionality from command-line.
+ *
+ * @author lambdaprime intid@protonmail.com
+ */
 public class Main {
 
     private static void usage() {
-        new ResourceUtils().readResourceAsStream("README.md")
-            .forEach(System.out::println);
+        new ResourceUtils()
+                .readResourceAsStream("README-depresolve.md")
+                .forEach(System.out::println);
     }
 
     private static void run(String[] args) throws Exception {
         var resolver = new Depresolve();
-        Map<String, Consumer<String>> handlers = Map.of(
-            "--output", dir -> { resolver.withOutputDir(Paths.get(dir)); }
-        );
+        Map<String, Consumer<String>> handlers =
+                Map.of(
+                        "--output",
+                        dir -> {
+                            resolver.withOutputDir(Paths.get(dir));
+                        });
         LinkedList<String> positionalArgs = new LinkedList<>();
         new SmartArgs(handlers, positionalArgs::add).parse(args);
         if (positionalArgs.isEmpty()) throw new ArgumentParsingException();
         var scope = Scope.COMPILE;
         while (!positionalArgs.isEmpty()) {
             switch (positionalArgs.peek()) {
-            case "-cp" :
-            case "-classpath" :
-                positionalArgs.remove();
-                resolver.withGenerateClasspath();
-                break;
-            case "--repo-home" :
-                positionalArgs.remove();
-                resolver.withRepositoryHome(Paths.get(positionalArgs.remove()));
-                break;
-            case "--scope" :
-                positionalArgs.remove();
-                scope = Scope.valueOf(positionalArgs.remove().toUpperCase());
-                break;
-            case "--output" :
-                positionalArgs.remove();
-                resolver.withOutputDir(Paths.get(positionalArgs.remove()));
-                break;
-            case "--output-links" :
-                positionalArgs.remove();
-                resolver.withOutputDir(Paths.get(positionalArgs.remove()))
-                    .withUseLinks();
-                break;
-            default:
-                resolver.addArtifactToResolve(new ArtifactInfo(positionalArgs.remove(), scope));
+                case "-cp":
+                case "-classpath":
+                    positionalArgs.remove();
+                    resolver.withGenerateClasspath();
+                    break;
+                case "--repo-home":
+                    positionalArgs.remove();
+                    resolver.withRepositoryHome(Paths.get(positionalArgs.remove()));
+                    break;
+                case "--scope":
+                    positionalArgs.remove();
+                    scope = Scope.valueOf(positionalArgs.remove().toUpperCase());
+                    break;
+                case "--output":
+                    positionalArgs.remove();
+                    resolver.withOutputDir(Paths.get(positionalArgs.remove()));
+                    break;
+                case "--output-links":
+                    positionalArgs.remove();
+                    resolver.withOutputDir(Paths.get(positionalArgs.remove())).withUseLinks();
+                    break;
+                default:
+                    resolver.addArtifactToResolve(new ArtifactInfo(positionalArgs.remove(), scope));
             }
         }
         if (resolver.getArtifacts().isEmpty()) throw new ArgumentParsingException();
         resolver.run();
     }
 
-    public static void main(String[] args) throws Exception
-    {
+    public static void main(String[] args) throws Exception {
         try {
             run(args);
         } catch (ArgumentParsingException e) {
