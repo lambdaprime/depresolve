@@ -22,8 +22,11 @@ import id.depresolve.Scope;
 import id.xfunction.ResourceUtils;
 import id.xfunction.cli.ArgumentParsingException;
 import id.xfunction.cli.SmartArgs;
+import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -33,6 +36,8 @@ import java.util.function.Consumer;
  * @author lambdaprime intid@protonmail.com
  */
 public class Main {
+
+    private static DepresolveUtils utils = new DepresolveUtils();
 
     private static void usage() {
         new ResourceUtils()
@@ -52,12 +57,14 @@ public class Main {
         new SmartArgs(handlers, positionalArgs::add).parse(args);
         if (positionalArgs.isEmpty()) throw new ArgumentParsingException();
         var scope = Scope.COMPILE;
+        List<File> classpath = new ArrayList<>();
         while (!positionalArgs.isEmpty()) {
             switch (positionalArgs.peek()) {
                 case "-cp":
                 case "-classpath":
                     positionalArgs.remove();
-                    resolver.withGenerateClasspath();
+                    resolver.withClasspathConsumer(classpath::add);
+                    resolver.withSilentMode();
                     break;
                 case "--repo-home":
                     positionalArgs.remove();
@@ -81,6 +88,7 @@ public class Main {
         }
         if (resolver.getArtifacts().isEmpty()) throw new ArgumentParsingException();
         resolver.run();
+        if (!classpath.isEmpty()) System.out.println(utils.toClasspathString(classpath));
     }
 
     public static void main(String[] args) throws Exception {

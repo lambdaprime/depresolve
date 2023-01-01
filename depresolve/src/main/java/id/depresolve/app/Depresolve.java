@@ -20,6 +20,7 @@ package id.depresolve.app;
 import id.depresolve.ArtifactInfo;
 import id.depresolve.utils.MavenClasspathResolver;
 import id.depresolve.utils.RepositoryUtills;
+import id.xfunction.Preconditions;
 import id.xfunction.io.DevNullOutputStream;
 import java.io.File;
 import java.io.PrintStream;
@@ -30,46 +31,92 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.apache.maven.resolver.examples.util.Booter;
 
 /**
+ * Resolve Maven dependencies.
+ *
+ * <p>{@link Depresolve} main flow looks like this:
+ *
+ * <ul>
+ *   <li>Given full name of Maven artifact {@link Depresolve} checks if it is present in local Maven
+ *       repository:
+ *       <ul>
+ *         <li>if it is there, {@link Depresolve} returns complete file path to this artifact
+ *         <li>if it is not, then {@link Depresolve} downloads it using <a
+ *             href="https://github.com/apache/maven-resolver">maven-resolver</a> which effectively
+ *             downloads artifact and stores it in local Maven repository same way as during
+ *             execution of "mvn" command
+ *       </ul>
+ * </ul>
+ *
+ * <p>If artifact has transient dependencies this flow repeats recursively for all of them.
+ *
+ * <p>To use {@link Depresolve} class you first configure it using "with" methods and tell what
+ * actions you want it to perform and then call {@link #run()}.
+ *
  * @author lambdaprime intid@protonmail.com
  */
 public class Depresolve {
 
-    private boolean generateClasspath;
     private Optional<Path> repositoryHome = Optional.empty();
     private Optional<Path> outputDir = Optional.empty();
     private boolean useLinks = false;
     private List<ArtifactInfo> artifacts = new ArrayList<>();
-    private Optional<List<File>> classpathOutput = Optional.empty();
+    private Optional<Consumer<File>> classpathConsumer = Optional.empty();
+    private boolean silentMode;
 
-    public Depresolve withGenerateClasspath() {
-        generateClasspath = true;
+    /**
+     * Do not print any additional output.
+     *
+     * <p>Examples of such output include download progress from <a
+     * href="https://github.com/apache/maven-resolver">maven-resolver</a> when it downloads missing
+     * artifacts to local Maven repository.
+     */
+    public Depresolve withSilentMode() {
+        silentMode = true;
         return this;
     }
 
-    public Depresolve withGenerateClasspath(List<File> output) {
-        generateClasspath = true;
-        classpathOutput = Optional.of(output);
+    /**
+     * Consume full file-system path to artifacts (inside local Maven repository) which will be
+     * resolved by {@link Depresolve}.
+     */
+    public Depresolve withClasspathConsumer(Consumer<File> classpathConsumer) {
+        this.classpathConsumer = Optional.of(classpathConsumer);
         return this;
     }
 
+    /**
+     * Copy all artifacts including their transient dependencies to the given folder.
+     *
+     * <p>This is a simple alternative for manually setting up a consumer with {@link
+     * #withClasspathConsumer(Consumer)} and copying resolved artifacts inside local Maven
+     * repository to the additional folder.
+     */
     public Depresolve withOutputDir(Path dir) {
         outputDir = Optional.of(dir);
         return this;
     }
 
+    /**
+     * Used together with {@link #withOutputDir(Path)} but instead of copying artifacts from local
+     * Maven repository to the target folder it will create a symbolic links
+     */
     public Depresolve withUseLinks() {
+        Preconditions.isTrue(outputDir.isPresent(), "Use links requires output folder to be set");
         useLinks = true;
         return this;
     }
 
+    /** Tells {@link Depresolve} which artifacts to resolve. */
     public Depresolve addArtifactToResolve(ArtifactInfo artifact) {
         artifacts.add(artifact);
         return this;
     }
 
+    /** Set path to local Maven Repository. Default is ~/.m2/repository */
     public Depresolve withRepositoryHome(Path dir) {
         repositoryHome = Optional.of(dir);
         return this;
@@ -87,9 +134,10 @@ public class Depresolve {
         return Paths.get(userHome, ".m2", "repository");
     }
 
+    /** Run {@link Depresolve} */
     public void run() throws Exception {
         var output = System.out;
-        if (generateClasspath) {
+        if (silentMode) {
             output = new PrintStream(new DevNullOutputStream());
         }
         var repoHome = repositoryHome.orElse(findLocalRepositoryHome());
@@ -100,12 +148,11 @@ public class Depresolve {
         for (var artifact : artifacts) {
             resolver.resolve(artifact.getName(), artifact.getScope());
         }
-        if (generateClasspath) {
-            if (classpathOutput.isEmpty()) {
-                System.out.println(resolver);
-            } else {
-                classpathOutput.get().addAll(resolver.getAllResolvedFiles());
-            }
+        if (classpathConsumer.isEmpty()) {
+            System.out.println(resolver);
+        } else {
+            Consumer<File> consumer = classpathConsumer.get();
+            resolver.getAllResolvedFiles().forEach(consumer);
         }
         if (outputDir.isPresent()) {
             var dst = outputDir.get();
