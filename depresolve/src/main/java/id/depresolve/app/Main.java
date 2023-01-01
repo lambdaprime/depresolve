@@ -18,6 +18,8 @@
 package id.depresolve.app;
 
 import id.depresolve.ArtifactInfo;
+import id.depresolve.Depresolve;
+import id.depresolve.DepresolveUtils;
 import id.depresolve.Scope;
 import id.xfunction.ResourceUtils;
 import id.xfunction.cli.ArgumentParsingException;

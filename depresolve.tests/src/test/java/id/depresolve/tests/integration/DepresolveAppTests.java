@@ -20,7 +20,7 @@ package id.depresolve.tests.integration;
 import static java.util.stream.Collectors.joining;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import id.depresolve.app.Depresolve;
+import id.depresolve.Depresolve;
 import id.xfunction.ResourceUtils;
 import id.xfunction.lang.XExec;
 import id.xfunction.nio.file.XFiles;
