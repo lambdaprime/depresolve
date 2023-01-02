@@ -28,8 +28,10 @@ public class DepresolveUtils {
 
     public String toClasspathString(List<File> classpath) {
         return classpath.stream()
+                .map(file -> file.isDirectory() ? new File(file, "*") : file)
                 .map(File::toString)
                 .sorted()
                 .collect(Collectors.joining(System.getProperty("path.separator", ":")));
     }
+
 }

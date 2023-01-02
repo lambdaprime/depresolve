@@ -45,6 +45,33 @@ public class DepresolveAppTests {
     private static final String APP_PATH =
             Paths.get("").toAbsolutePath().resolve("build/depresolve/depresolve").toString();
 
+    private static class CommandOutput {
+        private String stdout;
+        private String stderr;
+
+        public CommandOutput(String stdout, String stderr) {
+            this.stdout = stdout;
+            this.stderr = stderr;
+        }
+
+        public String getStderr() {
+            return stderr;
+        }
+
+        public String getStdout() {
+            return stdout;
+        }
+
+        public String getCombined() {
+            return stdout + "\n" + stderr + "\n";
+        }
+
+        @Override
+        public String toString() {
+            return getCombined();
+        }
+    }
+
     @BeforeEach
     void setup() throws IOException {}
 
@@ -68,7 +95,7 @@ public class DepresolveAppTests {
         Assertions.assertEquals(
                 true,
                 new WildcardMatcher(resourceUtil.readResource("test_download_to_custom_repo"))
-                        .matches(out));
+                        .matches(out.getCombined()));
         assertFilesExist(repoHome, files);
     }
 
@@ -92,7 +119,7 @@ public class DepresolveAppTests {
         Assertions.assertEquals(
                 true,
                 new WildcardMatcher(resourceUtil.readResource("test_download_to_custom_repo"))
-                        .matches(out));
+                        .matches(out.getCombined()));
         assertFilesExist(repoHome, files);
     }
 
@@ -140,7 +167,7 @@ public class DepresolveAppTests {
                         repoHome.toString());
         runOk(args);
         var out = runOk(args);
-        Assertions.assertEquals(false, out.contains("Downloading"));
+        Assertions.assertEquals(false, out.getCombined().contains("Downloading"));
     }
 
     @Test
@@ -160,7 +187,7 @@ public class DepresolveAppTests {
         removeFiles(repoHome, files);
         var args = String.format("-cp org.apache.maven.resolver:maven-resolver-impl:1.6.2");
         var out = runOk(args);
-        Assertions.assertEquals(expected, out);
+        Assertions.assertEquals(expected, out.getCombined());
     }
 
     @Test
@@ -179,13 +206,14 @@ public class DepresolveAppTests {
                         "-cp org.apache.maven.resolver:maven-resolver-api:1.6.2"
                                 + " org.slf4j:slf4j-api:1.7.30");
         var out = runOk(args);
-        Assertions.assertEquals(expected, out);
+        Assertions.assertEquals(expected, out.getCombined());
     }
 
     @Test
     public void test_no_args() throws Exception {
         var out = runFail("");
-        Assertions.assertEquals(Files.readString(Paths.get("../README.md")) + "\n", out);
+        Assertions.assertEquals(
+                Files.readString(Paths.get("../README.md")) + "\n", out.getCombined());
     }
 
     @Test
@@ -271,21 +299,21 @@ public class DepresolveAppTests {
         Files.writeString(pomFile, resourceUtil.readResource("maven-resolver-impl-1.6.2.pom"));
         var actual = runOk(args);
         XFiles.deleteRecursively(pomFile.getParent());
-        assertEquals(true, actual.startsWith(expected));
+        assertEquals(true, actual.getCombined().startsWith(expected));
     }
 
-    private String runFail(String fmt, Object... args) {
+    private CommandOutput runFail(String fmt, Object... args) {
         return run(1, fmt, args);
     }
 
-    private String runOk(String fmt, Object... args) {
+    private CommandOutput runOk(String fmt, Object... args) {
         return run(0, fmt, args);
     }
 
-    private String run(int expectedCode, String fmt, Object... args) {
+    private CommandOutput run(int expectedCode, String fmt, Object... args) {
         var proc = new XExec(APP_PATH + " " + String.format(fmt, args)).run();
         var code = proc.await();
-        var out = proc.stdout() + "\n" + proc.stderr() + "\n";
+        var out = new CommandOutput(proc.stdout(), proc.stderr());
         System.out.println("Output:");
         System.out.println(">>>");
         System.out.print(out);

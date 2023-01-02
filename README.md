@@ -1,4 +1,8 @@
-**depresolve** - helps to manage Java dependencies (from Maven repository). It allows:
+**depresolve** - command line tool which helps to manage Java dependencies in your local Maven repository.
+
+You can think of **depresolve** as something similar to "apt" command for Debian packages (or "pip" command for Python packages).
+
+It allows:
 
 - downloading all Maven dependencies to a directory
 - building a classpath string for Maven artifact(s) including their transient dependencies (useful in Java scripting)

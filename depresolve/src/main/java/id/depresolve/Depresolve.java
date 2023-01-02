@@ -138,6 +138,8 @@ public class Depresolve {
         var output = System.out;
         if (silentMode) {
             output = new PrintStream(new DevNullOutputStream());
+        } else {
+            output = System.err;
         }
         var repoHome = repositoryHome.orElse(findLocalRepositoryHome());
         var system = Booter.newRepositorySystem();
@@ -148,7 +150,7 @@ public class Depresolve {
             resolver.resolve(artifact.getName(), artifact.getScope());
         }
         if (classpathConsumer.isEmpty()) {
-            System.out.println(resolver);
+            resolver.getAllResolvedFiles().forEach(System.out::println);
         } else {
             Consumer<File> consumer = classpathConsumer.get();
             resolver.getAllResolvedFiles().forEach(consumer);
