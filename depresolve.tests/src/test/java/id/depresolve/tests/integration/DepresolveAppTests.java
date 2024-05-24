@@ -311,7 +311,7 @@ public class DepresolveAppTests {
     }
 
     private CommandOutput run(int expectedCode, String fmt, Object... args) {
-        var proc = new XExec(APP_PATH + " " + String.format(fmt, args)).run();
+        var proc = new XExec(APP_PATH + " " + String.format(fmt, args)).start();
         var code = proc.await();
         var out = new CommandOutput(proc.stdout(), proc.stderr());
         System.out.println("Output:");

@@ -1,17 +1,23 @@
 plugins {
   id 'com.diffplug.spotless'
-  id 'jacoco'
 }
 
-apply plugin : 'eclipse'
+eclipse.classpath.file {
+  // instruct eclipse plugin to put everything to module path
+  whenMerged {
+    entries.findAll { it.kind == 'lib' }.each { it.entryAttributes['module'] = 'true' }
+  }
+}
 
 dependencies {
-  testImplementation project(':depresolve')
+  testImplementation(project ":depresolve")
+  testImplementation "io.github.lambdaprime:id.xfunction:25.0"
 
   def junitVersion = "5.8.1"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
   testImplementation "org.junit.jupiter:junit-jupiter-params:${junitVersion}"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+  testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
 }
 
 // Gradle has no UnZip task so we reuse Copy for that

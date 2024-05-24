@@ -19,14 +19,8 @@ depresolve [ -cp | -classpath ] [ --repo-home <REPO_FOLDER> ] [ --output|--outpu
 
 [Documentation](http://portal2.atwebpages.com/depresolve/)
 
-# Download
+[Development](DEVELOPMENT.md)
 
-[Release versions](https://github.com/lambdaprime/depresolve/releases)
-
-# Details
-
-Based on [maven-resolver](https://github.com/apache/maven-resolver) library
-
-# Contributors
+# Contacts
 
 lambdaprime <intid@protonmail.com>

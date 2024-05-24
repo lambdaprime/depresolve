@@ -4,7 +4,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath "io.github.lambdaprime:id.xfunction:14.0"
+    classpath "io.github.lambdaprime:id.xfunction:23.0"
   }
 }
 
@@ -13,6 +13,13 @@ plugins {
 }
 
 apply plugin : 'eclipse'
+
+eclipse.classpath.file {
+  // instruct eclipse plugin to put everything to module path
+  whenMerged {
+    entries.findAll { it.kind == 'lib' }.each { it.entryAttributes['module'] = 'true' }
+  }
+}
 
 // Excluding transient dependencies which are not used
 configurations {
@@ -25,24 +32,16 @@ configurations {
 }
 
 dependencies {
-  addDependencies(this, ["implementation", "apiElements"], "19.0", [
-    "io.github.lambdaprime:id.xfunction"
-  ]);
-  addDependencies(this, ["implementation", "apiElements"], "1.7.2", [
-    'org.apache.maven.resolver:maven-resolver',
-    'org.apache.maven.resolver:maven-resolver-impl',
-    'org.apache.maven.resolver:maven-resolver-util',
-    'org.apache.maven.resolver:maven-resolver-connector-basic',
-    'org.apache.maven.resolver:maven-resolver-transport-file',
-    'org.apache.maven.resolver:maven-resolver-transport-http'
-  ]);
-  addDependencies(this, ["implementation", "apiElements"], "3.8.4", [
-    'org.apache.maven:maven-model-builder',
-    'org.apache.maven:maven-resolver-provider'
-  ]);
-  addDependencies(this, ["implementation", "apiElements"], "1.7.32", [
-    'org.slf4j:slf4j-simple'
-  ]);
+  implementation "io.github.lambdaprime:id.xfunction:25.0"
+  implementation "org.apache.maven.resolver:maven-resolver:1.7.2"
+  implementation "org.apache.maven.resolver:maven-resolver-impl:1.7.2"
+  implementation "org.apache.maven.resolver:maven-resolver-util:1.7.2"
+  implementation "org.apache.maven.resolver:maven-resolver-connector-basic:1.7.2"
+  implementation "org.apache.maven.resolver:maven-resolver-transport-file:1.7.2"
+  implementation "org.apache.maven.resolver:maven-resolver-transport-http:1.7.2"
+  implementation "org.apache.maven:maven-model-builder:3.8.4"
+  implementation "org.apache.maven:maven-resolver-provider:3.8.4"
+  implementation "org.slf4j:slf4j-simple:1.7.32"
 }
 
 configurations {
@@ -58,6 +57,8 @@ jar {
 
 def packageDir = "$buildDir/package/${projectName}"
 
+ext.artifacts = fileTree(include: ['*'], dir: "$packageDir/libs")
+
 task createRelease(type: Zip) {
   archiveFileName = "$releaseFileName"
   destinationDirectory = file("$projectDir/release")
@@ -65,7 +66,7 @@ task createRelease(type: Zip) {
 }
 
 task copyLibs(type: Copy) {
-  from configurations.runtimeClasspath
+  from configurations.customConfig 
   from jar.archiveFile
   into "${packageDir}/libs"
 }
@@ -79,7 +80,9 @@ task copyReadme(type: Copy) {
 // overwrite template README which comes from resources folder
 jar.dependsOn copyReadme
 
-task createPackage(type: Copy, dependsOn: copyLibs) {
+javadoc.enabled = false
+
+task createPackage(type: Copy, dependsOn: [copyLibs]) {
   from "${project.rootDir}/README.md"
   from "${project.rootDir}/LICENSE-2.0.txt"
   from file("$projectDir/src/depresolve")
@@ -89,7 +92,7 @@ task createPackage(type: Copy, dependsOn: copyLibs) {
 
 task cleanRelease(type: Delete) {
   delete "$packageDir"
-  delete "$projectDir/release"
+  delete "$projectDir/release/*-SNAPSHOT.zip"
 }
 
 createRelease.dependsOn createPackage

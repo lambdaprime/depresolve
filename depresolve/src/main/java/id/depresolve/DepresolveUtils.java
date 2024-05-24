@@ -33,5 +33,4 @@ public class DepresolveUtils {
                 .sorted()
                 .collect(Collectors.joining(System.getProperty("path.separator", ":")));
     }
-
 }

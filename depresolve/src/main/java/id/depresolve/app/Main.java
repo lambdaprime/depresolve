@@ -57,7 +57,7 @@ public class Main {
                         });
         LinkedList<String> positionalArgs = new LinkedList<>();
         new SmartArgs(handlers, positionalArgs::add).parse(args);
-        if (positionalArgs.isEmpty()) throw new ArgumentParsingException();
+        if (positionalArgs.isEmpty()) throw new ArgumentParsingException("No arguments provided");
         var scope = Scope.COMPILE;
         List<File> classpath = new ArrayList<>();
         while (!positionalArgs.isEmpty()) {
@@ -88,7 +88,8 @@ public class Main {
                     resolver.addArtifactToResolve(new ArtifactInfo(positionalArgs.remove(), scope));
             }
         }
-        if (resolver.getArtifacts().isEmpty()) throw new ArgumentParsingException();
+        if (resolver.getArtifacts().isEmpty())
+            throw new ArgumentParsingException("No artifacts to resolve");
         resolver.run();
         if (!classpath.isEmpty()) System.out.println(utils.toClasspathString(classpath));
     }
