@@ -121,6 +121,7 @@ public class Depresolve {
         return this;
     }
 
+    /** Execute given command with resolved classpath inside the CLASSPATH environment variable */
     public List<ArtifactInfo> getArtifacts() {
         return artifacts;
     }

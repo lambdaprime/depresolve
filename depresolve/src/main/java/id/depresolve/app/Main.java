@@ -24,12 +24,14 @@ import id.depresolve.Scope;
 import id.xfunction.ResourceUtils;
 import id.xfunction.cli.ArgumentParsingException;
 import id.xfunction.cli.SmartArgs;
+import id.xfunction.lang.XExec;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -47,7 +49,7 @@ public class Main {
                 .forEach(System.out::println);
     }
 
-    private static void run(String[] args) throws Exception {
+    private static int run(String[] args) throws Exception {
         var resolver = new Depresolve();
         Map<String, Consumer<String>> handlers =
                 Map.of(
@@ -60,6 +62,7 @@ public class Main {
         if (positionalArgs.isEmpty()) throw new ArgumentParsingException("No arguments provided");
         var scope = Scope.COMPILE;
         List<File> classpath = new ArrayList<>();
+        Optional<String> command = Optional.empty();
         while (!positionalArgs.isEmpty()) {
             switch (positionalArgs.peek()) {
                 case "-cp":
@@ -84,6 +87,12 @@ public class Main {
                     positionalArgs.remove();
                     resolver.withOutputDir(Paths.get(positionalArgs.remove())).withUseLinks();
                     break;
+                case "--exec":
+                    positionalArgs.remove();
+                    command = Optional.of(positionalArgs.remove());
+                    resolver.withClasspathConsumer(classpath::add);
+                    resolver.withSilentMode();
+                    break;
                 default:
                     resolver.addArtifactToResolve(new ArtifactInfo(positionalArgs.remove(), scope));
             }
@@ -92,14 +101,25 @@ public class Main {
             throw new ArgumentParsingException("No artifacts to resolve");
         resolver.run();
         if (!classpath.isEmpty()) System.out.println(utils.toClasspathString(classpath));
+        if (command.isPresent()) {
+            var exec =
+                    new XExec(command.get())
+                            .withEnvironmentVariables(
+                                    Map.of("CLASSPATH", utils.toClasspathString(classpath)));
+            exec.getProcessBuilder().inheritIO();
+            return exec.start().await();
+        }
+        return 0;
     }
 
     public static void main(String[] args) throws Exception {
+        var code = 0;
         try {
             run(args);
         } catch (ArgumentParsingException e) {
             usage();
-            System.exit(1);
+            code = 1;
         }
+        System.exit(code);
     }
 }

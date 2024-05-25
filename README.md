@@ -12,7 +12,7 @@ It allows:
 # Usage
 
 ```bash
-depresolve [ -cp | -classpath ] [ --repo-home <REPO_FOLDER> ] [ --output|--output-links <OUTPUT_FOLDER> ] [--scope <test|compile> ] <ARTIFACT_NAME> [ ... [--scope <test|compile> ] <ARTIFACT_NAME> ]
+depresolve [ -cp | -classpath ] [ --repo-home <REPO_FOLDER> ] [ --output|--output-links <OUTPUT_FOLDER> ] [--scope <test|compile> ] [--exec <COMMAND>] <ARTIFACT_NAME> [ ... [--scope <test|compile> ] <ARTIFACT_NAME> ]
 ```
 
 # Documentation

@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -300,6 +301,23 @@ public class DepresolveAppTests {
         var actual = runOk(args);
         XFiles.deleteRecursively(pomFile.getParent());
         assertEquals(true, actual.getCombined().startsWith(expected));
+    }
+
+    @Test
+    public void test_exec() throws Exception {
+        var out = runOk("--exec printenv org.apache.maven.resolver:maven-resolver-impl:1.6.2");
+        var classpath =
+                out.getCombined().lines().filter(s -> s.startsWith("CLASSPATH")).findFirst().get();
+        Assertions.assertEquals(
+                true,
+                Stream.of(
+                                "commons-lang3-3.8.1.jar",
+                                "maven-resolver-api-1.6.2.jar",
+                                "maven-resolver-impl-1.6.2.jar",
+                                "maven-resolver-spi-1.6.2.jar",
+                                "maven-resolver-util-1.6.2.jar",
+                                "slf4j-api-1.7.30.jar")
+                        .allMatch(file -> classpath.contains(file)));
     }
 
     private CommandOutput runFail(String fmt, Object... args) {
