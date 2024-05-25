@@ -9,6 +9,10 @@ It allows:
 
 **depresolve** can be used from the command line (through **depresolve** command) or directly from code as Java library.
 
+# Download
+
+[Release versions](depresolve/release/CHANGELOG.md)
+
 # Usage
 
 ```bash
