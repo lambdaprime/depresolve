@@ -5,7 +5,7 @@
 :: Example: "C:\a" when pass to Java main() will be converted to Java String "C:a"
 :: To fix this we replace any "\" to "\\" before passing them to Java
 SETLOCAL
-set "javaArgs=%*"
+set "javaArgs=%* "
 set "javaArgs=%javaArgs:\=\\%"
 
 java -Xshare:off -cp "%~dp0\libs\*" id.depresolve.app.Main %javaArgs%

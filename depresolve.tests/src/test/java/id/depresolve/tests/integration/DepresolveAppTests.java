@@ -192,6 +192,35 @@ public class DepresolveAppTests {
     }
 
     @Test
+    public void test_cp_resolved_to_latest_versions() {
+        var repoHome = new Depresolve().findLocalRepositoryHome();
+        var files =
+                List.of(
+                        "io/github/lambdaprime/id.xfunction/26.0/id.xfunction-26.0.jar",
+                        "io/github/lambdaprime/jros2client/8.0/jros2client-8.0.jar",
+                        "io/github/lambdaprime/jros2messages/8.0/jros2messages-8.0.jar",
+                        "io/github/lambdaprime/jrosclient/9.0/jrosclient-9.0.jar",
+                        "io/github/lambdaprime/jrosmessages/9.0/jrosmessages-9.0.jar",
+                        "io/github/lambdaprime/kineticstreamer/8.0/kineticstreamer-8.0.jar",
+                        "io/github/pinorobotics/jros2actionlib/3.0/jros2actionlib-3.0.jar",
+                        "io/github/pinorobotics/jros2moveit/1.0/jros2moveit-1.0.jar",
+                        "io/github/pinorobotics/jros2services/5.0/jros2services-5.0.jar",
+                        "io/github/pinorobotics/jrosactionlib/3.0/jrosactionlib-3.0.jar",
+                        "io/github/pinorobotics/jrosmoveit/2.0/jrosmoveit-2.0.jar",
+                        "io/github/pinorobotics/jrosservices/3.0/jrosservices-3.0.jar",
+                        "io/github/pinorobotics/rtpstalk/8.0/rtpstalk-8.0.jar",
+                        "io/opentelemetry/opentelemetry-api/1.34.1/opentelemetry-api-1.34.1.jar",
+                        "io/opentelemetry/opentelemetry-context/1.34.1/opentelemetry-context-1.34.1.jar");
+        var expected =
+                files.stream().map(f -> repoHome.resolve(f).toString()).collect(joining(":"))
+                        + "\n\n";
+        removeFiles(repoHome, files);
+        var args = String.format("-cp io.github.pinorobotics:jros2moveit:1.0");
+        var out = runOk(args);
+        Assertions.assertEquals(expected, out.getCombined());
+    }
+
+    @Test
     public void test_download_cp_multiple() {
         var repoHome = new Depresolve().findLocalRepositoryHome();
         var files =

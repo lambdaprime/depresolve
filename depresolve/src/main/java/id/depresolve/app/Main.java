@@ -101,7 +101,10 @@ public class Main {
             throw new ArgumentParsingException("No artifacts to resolve");
         resolver.run();
         if (!classpath.isEmpty()) System.out.println(utils.toClasspathString(classpath));
+
         if (command.isPresent()) {
+            // execute given command with resolved classpath inside the CLASSPATH environment
+            // variable
             var exec =
                     new XExec(command.get())
                             .withEnvironmentVariables(

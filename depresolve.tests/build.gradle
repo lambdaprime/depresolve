@@ -2,13 +2,6 @@ plugins {
   id 'com.diffplug.spotless'
 }
 
-eclipse.classpath.file {
-  // instruct eclipse plugin to put everything to module path
-  whenMerged {
-    entries.findAll { it.kind == 'lib' }.each { it.entryAttributes['module'] = 'true' }
-  }
-}
-
 dependencies {
   testImplementation(project ":depresolve")
   testImplementation "io.github.lambdaprime:id.xfunction:25.0"

@@ -121,7 +121,6 @@ public class Depresolve {
         return this;
     }
 
-    /** Execute given command with resolved classpath inside the CLASSPATH environment variable */
     public List<ArtifactInfo> getArtifacts() {
         return artifacts;
     }
@@ -150,6 +149,7 @@ public class Depresolve {
         for (var artifact : artifacts) {
             resolver.resolve(artifact.getName(), artifact.getScope());
         }
+        resolver.dropOldVersions();
         if (classpathConsumer.isEmpty()) {
             resolver.getAllResolvedFiles().forEach(System.out::println);
         } else {

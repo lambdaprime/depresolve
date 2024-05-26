@@ -21,11 +21,13 @@ import static java.util.stream.Collectors.toList;
 
 import id.depresolve.Scope;
 import java.io.File;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.resolver.examples.util.Booter;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
@@ -45,7 +47,7 @@ public class MavenClasspathResolver {
     private RepositorySystem system;
     private RepositorySystemSession session;
     private List<RemoteRepository> repos = Booter.newRepositories(system, session);
-    private Set<File> classpath = new HashSet<File>();
+    private Set<Artifact> classpath = new HashSet<>();
 
     public MavenClasspathResolver(RepositorySystem system, RepositorySystemSession session) {
         this.system = system;
@@ -82,22 +84,42 @@ public class MavenClasspathResolver {
         }
     }
 
+    public void dropOldVersions() {
+        classpath =
+                classpath.stream()
+                        .collect(Collectors.groupingBy(a -> a.getArtifactId()))
+                        .values()
+                        .stream()
+                        .map(this::selectLatestVersion)
+                        .collect(Collectors.toSet());
+    }
+
     public List<File> getAllResolvedFiles() {
-        return classpath.stream().sorted().collect(toList());
+        return classpath.stream().map(Artifact::getFile).sorted().collect(toList());
     }
 
     @Override
     public String toString() {
         return classpath.stream()
+                .map(Artifact::getFile)
                 .map(File::toString)
                 .sorted()
                 .collect(Collectors.joining(System.getProperty("path.separator", ":")));
     }
 
-    private File resolvePath(Artifact artifact) throws ArtifactResolutionException {
+    private Artifact resolvePath(Artifact artifact) throws ArtifactResolutionException {
         var artifactRequest = new ArtifactRequest();
         artifactRequest.setArtifact(artifact);
         artifactRequest.setRepositories(repos);
-        return system.resolveArtifact(session, artifactRequest).getArtifact().getFile();
+        return system.resolveArtifact(session, artifactRequest).getArtifact();
+    }
+
+    private Artifact selectLatestVersion(List<Artifact> artifacts) {
+        return artifacts.stream()
+                .sorted(
+                        Comparator.comparing((Artifact a) -> new ComparableVersion(a.getVersion()))
+                                .reversed())
+                .findFirst()
+                .get();
     }
 }
