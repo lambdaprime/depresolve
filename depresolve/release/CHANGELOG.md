@@ -1,3 +1,9 @@
+# Version 4
+
+- Prefer latest version in case of multiple versions of the same artifact
+
+[depresolve-v4.0.zip](https://github.com/lambdaprime/depresolve/raw/main/depresolve/release/depresolve-v4.0.zip)
+
 # Version 3
 
 - Adding --exec support
