@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
   testImplementation(project ":depresolve")
-  testImplementation "io.github.lambdaprime:id.xfunction:25.0"
+  testImplementation "io.github.lambdaprime:id.xfunction:27.0"
 
   def junitVersion = "5.8.1"
   testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
@@ -32,4 +32,4 @@ compileTestJava.dependsOn myTest
 jar.dependsOn myTest
 
 // run spotless and format code before the build
-testClasses.dependsOn spotlessApply
+classes.dependsOn spotlessApply

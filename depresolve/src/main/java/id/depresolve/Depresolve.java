@@ -20,8 +20,8 @@ package id.depresolve;
 import id.depresolve.utils.MavenClasspathResolver;
 import id.depresolve.utils.RepositoryUtills;
 import id.xfunction.Preconditions;
-import id.xfunction.io.DevNullOutputStream;
 import java.io.File;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -137,7 +137,7 @@ public class Depresolve {
     public void run() throws Exception {
         var output = System.out;
         if (silentMode) {
-            output = new PrintStream(new DevNullOutputStream());
+            output = new PrintStream(OutputStream.nullOutputStream());
         } else {
             output = System.err;
         }
