@@ -1,3 +1,9 @@
+# Version 5
+
+- Update Gradle and xfunction to v27.0
+
+[depresolve-v5.0.zip](https://github.com/lambdaprime/depresolve/raw/main/depresolve/release/depresolve-v5.0.zip)
+
 # Version 4
 
 - Prefer latest version in case of multiple versions of the same artifact
